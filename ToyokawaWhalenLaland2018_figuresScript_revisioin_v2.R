@@ -11,6 +11,9 @@
 #
 # The analysis code (e.g. running a MCMC) appear after the figure-depiction scripts, where you can re-analyse the models.
 
+# UPDATES
+# 16 November 2020 - Added some missing data sets
+
 # Functions
 myTheme = function() {
   theme(
@@ -46,8 +49,8 @@ myTheme_legend = function() {
     axis.title.x=element_text(size=12, family="Helvetica" ),
     axis.title.y=element_text(size=12, family="Helvetica" ),
     panel.background = element_rect(fill = "white", colour = NA),
-    #panel.grid = element_blank(),
-    panel.grid = element_line(colour = "black", size = 0.8),
+    panel.grid = element_blank(),
+    #panel.grid = element_line(colour = "black", size = 0.8),
     plot.title = element_text(size=12, family="Helvetica" ),
     plot.background = element_rect(colour = "white")
   )
@@ -88,15 +91,12 @@ WAIC_indv = function(fit) {
 }
 
 # Loading stuff
-library(readr)
+library(tidyverse)
 library(cowplot)
-library(ggjoy)
-library(rstan)
-library(ggmcmc)
-library(viridisLite)
-library(viridis)
-library(stringr)
+library(ggridges)
 library(lme4)
+library(ggmcmc)
+library(stringr)
 library(data.table)
 library(rstan)
 
@@ -112,7 +112,7 @@ copyingProbReduction_data_fullModelOnly <- read_csv("./data/copyingProbReduction
 questionnaire_data_exp <- read_csv("./data/questionnaire_data_exp.csv")
 temp_UNC6_sReduc_annealing <- read_csv("./data/temp_UNC6_sReduc_annealing.csv")
 temp_AL6_annealing_indiv <- read_csv("./data/temp_AL6_annealing_indiv.csv")
-temp_UNC6_sReduc_annealing_simulation <- read_csv("./data/model6_simulation/temp_UNC6_sReduc_annealing_simulation.csv")
+temp_UNC6_sReduc_annealing_simulation <- read_csv("./data/temp_UNC6_sReduc_annealing_simulation.csv")
 soc_table_UNC6_sReduc_annealing <- read_csv("./data/soc_table_UNC6_sReduc_annealing.csv")
 netBeta_table_UNC6_sReduc_annealing <- read_csv("./data/netBeta_table_UNC6_sReduc_annealing.csv")
 netBeta_table_AL6_annealing_indiv <- read_csv("./data/netBeta_table_AL6_annealing_indiv.csv")
@@ -120,23 +120,23 @@ UNC_Moderate_otherParam1_eachGroup_sup1 <- read_csv("./data/UNC_Moderate_otherPa
 UNC_Moderate_otherParam1_timeSeries_sup1 <- read_csv("./data/UNC_Moderate_otherParam1_timeSeries_sup1.csv")
 UNC_Moderate_otherParam2_eachGroup_sup1 <- read_csv("./data/UNC_Moderate_otherParam2_eachGroup_sup1.csv")
 UNC_Moderate_otherParam2_timeSeries_sup1 <- read_csv("./data/UNC_Moderate_otherParam2_timeSeries_sup1.csv")
-posthoc_sim_summary_indivSmallLarge <- read_csv("./data/stan_mdelFitting/posthoc_sim_summary_indivSmallLarge.csv")
-posthoc_sim_eachGroup_aveOptim <- read_csv("./data/stan_mdelFitting/posthoc_sim_eachGroup_aveOptim.csv")
-posthoc_sim_summary_all <- read_csv("./data/stan_mdelFitting/posthoc_sim_summary_all.csv")
+posthoc_sim_summary_indivSmallLarge <- read_csv("./data/posthoc_sim_summary_indivSmallLarge.csv")
+posthoc_sim_eachGroup_aveOptim <- read_csv("./data/posthoc_sim_eachGroup_aveOptim.csv")
+posthoc_sim_summary_all <- read_csv("./data/posthoc_sim_summary_all.csv")
 # Loading analysis results (.rds)
-onlineExp_fitting_groupSize_25 <- readRDS("./rds/mcmc_result/onlineExp_fitting_groupSize_25.rds")
-onlineExp_fitting_groupSize_50 <- readRDS("./rds/mcmc_result/onlineExp_fitting_groupSize_50.rds")
-onlineExp_fitting_groupSize_78 <- readRDS("./rds/mcmc_result/onlineExp_fitting_groupSize_78.rds")
-onlineExp_fitting_groupSize_supp1_25 <- readRDS("./rds/mcmc_result/onlineExp_fitting_groupSize_supp1_25.rds")
-onlineExp_fitting_groupSize_supp1_50 <- readRDS("./rds/mcmc_result/onlineExp_fitting_groupSize_supp1_50.rds")
-onlineExp_fitting_groupSize_supp1_78 <- readRDS("./rds/mcmc_result/onlineExp_fitting_groupSize_supp1_78.rds")
-isPositiveCopier_fitting <- readRDS("./rds/mcmc_result/isPositiveCopier_fitting.rds")
-alpha_fitting <- readRDS("./rds/mcmc_result/alpha_fitting.rds")
-average_copy_rate_fitting <- readRDS("./rds/mcmc_result/average_copy_rate_fitting.rds")
-average_copy_rate_fitting_posOnly <- readRDS("./rds/mcmc_result/average_copy_rate_fitting_posOnly.rds")
-average_invTemp_fitting <- readRDS("./rds/mcmc_result/average_invTemp_fitting.rds")
-conformity_exponent_fitting <- readRDS("./rds/mcmc_result/conformity_exponent_fitting.rds")
-conformity_exponent_fitting_posOnly <- readRDS("./rds/mcmc_result/conformity_exponent_fitting_posOnly.rds")
+onlineExp_fitting_groupSize_25 <- readRDS("./rds/onlineExp_fitting_groupSize_25.rds")
+onlineExp_fitting_groupSize_50 <- readRDS("./rds/onlineExp_fitting_groupSize_50.rds")
+onlineExp_fitting_groupSize_78 <- readRDS("./rds/onlineExp_fitting_groupSize_78.rds")
+onlineExp_fitting_groupSize_supp1_25 <- readRDS("./rds/onlineExp_fitting_groupSize_supp1_25.rds")
+onlineExp_fitting_groupSize_supp1_50 <- readRDS("./rds/onlineExp_fitting_groupSize_supp1_50.rds")
+onlineExp_fitting_groupSize_supp1_78 <- readRDS("./rds/onlineExp_fitting_groupSize_supp1_78.rds")
+isPositiveCopier_fitting <- readRDS("./rds/isPositiveCopier_fitting.rds")
+alpha_fitting <- readRDS("./rds/alpha_fitting.rds")
+average_copy_rate_fitting <- readRDS("./rds/average_copy_rate_fitting.rds")
+average_copy_rate_fitting_posOnly <- readRDS("./rds/average_copy_rate_fitting_posOnly.rds")
+average_invTemp_fitting <- readRDS("./rds/average_invTemp_fitting.rds")
+conformity_exponent_fitting <- readRDS("./rds/conformity_exponent_fitting.rds")
+conformity_exponent_fitting_posOnly <- readRDS("./rds/conformity_exponent_fitting_posOnly.rds")
 
 
 ## taskDifficulty3 means the three different uncertainty conditions
@@ -277,7 +277,8 @@ ggsave(file = "Figure1_rev.pdf", plot = Figure1, dpi = 600, width = 7.5, height 
 
 ## GGjoy plot
 Figure2 = ggplot()+
-  geom_joy(data= UNC_Moderate_expParameters_eachGroup, aes(x = averageFirst, y = as.factor(lambda), linetype=as.factor(groupSize), colour=as.factor(groupSize),fill=as.factor(groupSize),alpha=as.factor(groupSize)), stat = "binline", bins = 40, scale = 0.98, draw_baseline = FALSE)+
+  geom_density_ridges(data= UNC_Moderate_expParameters_eachGroup, aes(x = averageFirst, y = as.factor(lambda), linetype=as.factor(groupSize), colour=as.factor(groupSize),fill=as.factor(groupSize),alpha=as.factor(groupSize)), stat = "binline", bins = 40, scale = 0.98, draw_baseline = FALSE)+
+  # geom_joy(data= UNC_Moderate_expParameters_eachGroup, aes(x = averageFirst, y = as.factor(lambda), linetype=as.factor(groupSize), colour=as.factor(groupSize),fill=as.factor(groupSize),alpha=as.factor(groupSize)), stat = "binline", bins = 40, scale = 0.98, draw_baseline = FALSE)+
   scale_color_manual(name = 'Group size:', values = c("black", "orange", "red"), labels=c("n = 3;", "n = 10;", "n = 30"))+
   scale_linetype_manual(name = 'Group size:', values = c("dotted", "dashed", "solid"), labels=c("n = 3;", "n = 10;", "n = 30"))+
   scale_fill_manual(name = 'Group size:', values = c(NA, "orange", "red"), labels=c("n = 3;", "n = 10;", "n = 30"))+
@@ -383,7 +384,7 @@ group_level_summary = data.frame(
   )
 
 ## plot
-timeseries_optimrate_analisys_groupSize_plot = ggplot() +
+(timeseries_optimrate_analisys_groupSize_plot = ggplot() +
   geom_ribbon(data=fittedValues_onlineExp_fitting_groupSize, mapping=aes(x=round, ymin=p_indiv_p2.5, ymax=p_indiv_p97.5),fill='black', alpha=1/6)+
   geom_ribbon(data=fittedValues_onlineExp_fitting_groupSize, mapping=aes(x=round, ymin=p_indiv_p25, ymax=p_indiv_p75),fill='black', alpha=3/6)+
   geom_ribbon(data=fittedValues_onlineExp_fitting_groupSize, mapping=aes(x=round, ymin=p_group_small_p2.5, ymax=p_group_small_p97.5),fill='orange', alpha=1/6)+
@@ -402,7 +403,7 @@ timeseries_optimrate_analisys_groupSize_plot = ggplot() +
   #panel_border(colour = "black", size = 0.5, linetype = 1,remove = FALSE) +
   geom_hline(yintercept=1/3, linetype="dashed")+
   myTheme_legend()+
-  NULL
+  NULL)
 #ggsave(file = "timeseries_optimrate_analisys_groupSize_plot.pdf", plot = timeseries_optimrate_analisys_groupSize_plot, dpi = 600, width = 9, height = 3)
 
 timeseries_optimrate_analisys_indiv_vs_group_plot = ggplot() +
@@ -457,7 +458,7 @@ posthoc_simulation_plot = ggplot() +
   #strip.text.y = element_text(angle = 0))+
   NULL
 
-Figure_rev3_top = plot_grid(timeseries_optimrate_analisys_groupSize_plot, difference_btwn_indiv_vs_group_plot, labels = c('',''), ncol = 1, align = 'v')
+(Figure_rev3_top = plot_grid(timeseries_optimrate_analisys_groupSize_plot, difference_btwn_indiv_vs_group_plot, labels = c('',''), ncol = 1, align = 'v'))
 #ggsave(file = "mean_optim_prob.pdf", plot = Figure_rev3_top, dpi = 600, width = 9, height = 5)
 
 posthoc_sim_eachGroup_aveOptim_plot = ggplot() +
@@ -479,7 +480,8 @@ Figure_posthocSim = plot_grid(posthoc_simulation_plot, posthoc_sim_eachGroup_ave
 #ggsave(file = "post_hoc_simulation.pdf", plot = Figure_posthocSim, dpi = 600, width = 9, height = 5)
 
 ## Figure 3 in the revised manuscript
-Figure3 = plot_grid(Figure_rev3_top, Figure_posthocSim, labels=c(''),ncol=1,align='h')
+(Figure3 = plot_grid(Figure_rev3_top, Figure_posthocSim, labels=c(''),ncol=1,align='h'))
+
 ggsave(file = "Figure3.pdf", plot = Figure3, dpi = 600, width = 7.5, height = 7.5)
 
 
@@ -515,19 +517,21 @@ copyingProbReduction_data_fullModelOnly$taskDifficulty2 = factor(copyingProbRedu
 # Using 50% CI for categorisation
 # Three categories: Random-copying, neg-freq-dep, pos-freq-dep
 # Presenting only the positive frequency-dependent copiers
-
+(
 Figure5 = ggplot() +
                     geom_line(data=subset(copyingProbReduction_data_fullModelOnly, best_model!='Random'&best_model!='AL'&best_model!='AL_ann'&frequency_dependence_4=='pos-freq-dep'), mapping=aes(round,copyingProb,group=amazonID,colour=theta),alpha=3/4)+
-                    stat_summary(data=subset(copyingProbReduction_data_fullModelOnly, best_model!='Random'&best_model!='AL'&best_model!='AL_ann'&frequency_dependence_4=='pos-freq-dep'),aes(round,copyingProb),fun.y = "median",geom="line",linetype = "dashed", colour = "black", size = 1)+
+                    stat_summary(data=subset(copyingProbReduction_data_fullModelOnly, best_model!='Random'&best_model!='AL'&best_model!='AL_ann'&frequency_dependence_4=='pos-freq-dep'),aes(round,copyingProb),fun = "median",geom="line",linetype = "dashed", colour = "black", size = 1)+
                     facet_grid(.~taskDifficulty2)+
                     labs(x='Round', y=expression(paste('Social learning weight ',sigma[i][t],sep="")), title='') +
                     ylim(c(0,1))+
                     xlim(c(2,70))+
                     #scale_colour_distiller(name=expression(paste('Conformity\nexponent',theta[i],sep="")), palette = "RdYlBu", direction = -1)+
-                    scale_color_viridis(name=expression(paste('Conformity\nexponent',theta[i],sep="")), option="magma", direction = -1)+
+                    scale_color_viridis_c(name=expression(paste('Conformity\nexponent',theta[i],sep="")), option="magma", direction = -1)+
                     myTheme_legend()+
                     #panel_border(colour = "black", size = 0.5, linetype = 1,remove = FALSE)+
                     NULL
+)
+
 ggsave(file = "Figure5.pdf", plot = Figure5, dpi = 600, width = 7.5, height = 2.5)
 
 
@@ -666,7 +670,7 @@ lsfit(performanceSummary4$groupSize_standerized2, performanceSummary4$groupSize)
 isPositiveCopier_pred_data$groupSize = isPositiveCopier_pred_data$groupSize_standerized2*7.808047 + 10.421192
 
 ## Figure 4 top row
-GS_proportionSL_25 = ggplot() +
+(GS_proportionSL_25 = ggplot() +
   geom_ribbon(data=subset(isPositiveCopier_pred_data,taskDifficulty=='25%'&groupSize_standerized2>=-1.4&groupSize_standerized2<=1), aes(x=groupSize, ymin=isPositiveCopier_p2.5,ymax=isPositiveCopier_p97.5), fill = "lightpink")+ #fill = "lightpink"
   geom_path(data=subset(isPositiveCopier_pred_data,taskDifficulty=='25%'&groupSize_standerized2>=-1.4&groupSize_standerized2<=1), aes(x=groupSize, y=isPositiveCopier_p50), linetype='dashed', size=0.6,color='red')+
   geom_line(data=strategies_proportion_25, aes(groupSize, proportion_pos_freq_dep),colour='red') + geom_point(data=strategies_proportion_25, aes(groupSize, proportion_pos_freq_dep),colour='red',shape=2) +
@@ -678,7 +682,7 @@ GS_proportionSL_25 = ggplot() +
   myTheme_legend()+ylim(c(NA,1))+xlim(c(2, 28))+
   theme(legend.position = c(0.05, 0.5))+
   #panel_border(colour = "black", size = 0.5, linetype = 1,remove = FALSE)+
-  NULL
+  NULL)
 GS_proportionSL_50 = ggplot() +
   geom_ribbon(data=subset(isPositiveCopier_pred_data,taskDifficulty=='50%'&groupSize_standerized2>=-1.4&groupSize_standerized2<=1), aes(x=groupSize, ymin=isPositiveCopier_p2.5,ymax=isPositiveCopier_p97.5), fill = "lightpink")+ #fill = "lightpink"
   geom_path(data=subset(isPositiveCopier_pred_data,taskDifficulty=='50%'&groupSize_standerized2>=-1.4&groupSize_standerized2<=1), aes(x=groupSize, y=isPositiveCopier_p50), linetype='dashed', size=0.6,color='red')+
@@ -806,7 +810,7 @@ Figure4_c_78 = ggplot() +
 
 Figure4_rev_right = plot_grid(GS_proportionSL_25,Figure4_b_25,Figure4_c_25, labels=c("","",""), ncol = 1, align = 'v')
 Figure4_rev_left = plot_grid(GS_proportionSL_50,GS_proportionSL_78, Figure4_b_50,Figure4_b_78, Figure4_c_50,Figure4_c_78, labels=c("","",""), ncol = 2, align = 'v')
-Figure4_rev = plot_grid(Figure4_rev_right,Figure4_rev_left, labels=c("","",""), ncol = 2, rel_widths = c(1,1.8))
+(Figure4_rev = plot_grid(Figure4_rev_right,Figure4_rev_left, labels=c("","",""), ncol = 2, rel_widths = c(1,1.8)))
 
 ggsave(file = "Figure4_rev.pdf", plot = Figure4_rev, dpi = 600, width = 9, height = 7.5)
 
@@ -815,10 +819,11 @@ ggsave(file = "Figure4_rev.pdf", plot = Figure4_rev, dpi = 600, width = 9, heigh
 
 
 
-
-
-
-
+#
+#
+# ============================ END of drawing the figures ============================================================
+#
+#
 
 
 
